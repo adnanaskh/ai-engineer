@@ -1,5 +1,7 @@
 import os
 import time
+import json
+from datetime import datetime
 from dotenv import load_dotenv
 from google import genai
 from google.genai import errors
@@ -7,7 +9,22 @@ from groq import Groq
 
 load_dotenv()
 
+
+
 prompt = "Create a list of 7 wonders."
+
+saved_data = {
+    "prompt": prompt,
+    "timestamp": datetime.now().isoformat(),
+    "responses": {
+        "gemini": None,
+        "groq": None
+    }
+}
+
+
+
+
 
 print("---Requesting Gemeini---")
 
@@ -23,6 +40,8 @@ for attempt in range(3):
 
         print("Gemini Response: ")
         print(gemini_response.text)
+
+        saved_data["responses"]["gemini"] = gemini_response.text
         break
     except Exception as e:
         if "503" in str(e) and attempt < 2:
@@ -53,6 +72,8 @@ try:
 
     print("GROQ RESPONSE: ")
     print(groq_response.choices[0].message.content)
+    saved_data["responses"]["groq"] = groq_response.choices[0].message.content
+
 
 except Exception as e:
     print(f"Froq error: {e}" )
